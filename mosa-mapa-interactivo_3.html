@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MOSA — Mapa Interactivo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg:#FAFAF8;--surf:#FFF;--surf2:#F5F4F0;
+    --brd:#E8E6E0;--brdS:#C8C6C0;
+    --txt:#1a1a1a;--muted:#888;--muted2:#CCC;
+    --green:#2D6A1F;--gbg:#EAF3DE;
+    --blue:#1A5FA5;--bbg:#E6F1FB;
+    --red:#A32D2D;--rbg:#FCEBEB;
+    --warn:#8A6A00;--wbg:#FAEEDA;
+    --orange:#8A5000;
+  }
+  html,body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+  .hdr{background:var(--surf);border-bottom:1px solid var(--brd);padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
+  .lbox{width:32px;height:32px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
+  .ltit{font-size:14px;font-weight:600;}
+  .lsub{font-size:11px;color:var(--muted);}
+
+  .selbar{padding:10px 14px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;}
+  .selbar::-webkit-scrollbar{display:none;}
+  .tbtn{padding:8px 14px;border-radius:18px;border:1.5px solid var(--brdS);background:var(--surf);color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all .15s;}
+  .tbtn.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+
+  .hbar{background:#1a1a1a;color:#fff;text-align:center;font-size:12px;padding:8px 16px;display:none;}
+  .hbar.on{display:block;}
+
+  /* TABLET LAYOUT */
+  .lay{display:grid;grid-template-columns:1fr 195px;gap:14px;padding:16px;max-width:960px;margin:0 auto;}
+  @media(max-width:640px){
+    .lay{grid-template-columns:1fr;padding:12px;}
+    .sideb{display:none!important;}
+    body{padding-bottom:140px;}
+  }
+
+  .tbox{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:14px;}
+  .tinfo{font-size:12px;color:var(--muted);margin-bottom:12px;}
+  .tinfo strong{color:var(--txt);font-weight:500;}
+
+  .axle{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 0;position:relative;}
+  .axle-bar{position:absolute;left:5%;right:5%;height:4px;background:var(--brd);border-radius:2px;z-index:0;}
+  .atag{font-size:10px;color:var(--muted2);font-weight:700;position:absolute;left:0;width:20px;text-align:center;}
+  .aside{display:flex;gap:5px;z-index:1;}
+  .dbl{display:flex;gap:3px;}
+
+  .tire{width:62px;height:62px;border-radius:50%;border:2.5px solid var(--brdS);background:var(--surf);display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;flex-shrink:0;position:relative;touch-action:none;transition:border-color .15s,transform .1s;}
+  @media(max-width:640px){.tire{width:58px;height:58px;}}
+  .tire.dragging{opacity:.3;}
+  .tire.empty{border-style:dashed;border-color:var(--muted2);background:var(--bg);opacity:.45;}
+  .tire.alerta{border-color:var(--red);background:var(--rbg);}
+  .tire.rot{border-color:#E6A000;background:var(--wbg);animation:blink .8s infinite;}
+  .tire.drop-target{border-color:#1a1a1a;border-width:3px;box-shadow:0 0 0 4px rgba(26,26,26,.1);}
+  .tire.tapped{transform:scale(1.1);border-color:#1a1a1a;border-width:3px;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.6;}}
+  .tp{font-size:9px;color:var(--muted);font-weight:600;line-height:1;}
+  .tm{font-size:13px;font-weight:600;color:var(--txt);line-height:1.3;}
+  .tpsi{font-size:9px;color:var(--muted);line-height:1;}
+  .tire.alerta .tm,.tire.alerta .tpsi{color:var(--red);}
+
+  #ghost{position:fixed;pointer-events:none;z-index:9999;width:60px;height:60px;border-radius:50%;background:#1a1a1a;color:#fff;display:none;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;line-height:1.3;padding:4px;border:3px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,.35);}
+
+  /* PANEL */
+  .panel{background:var(--surf2);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-top:12px;display:none;}
+  .panel.on{display:block;}
+  .ppos{font-size:11px;color:var(--muted);margin-bottom:1px;}
+  .pfuego{font-size:15px;font-weight:600;}
+  .pstats{font-size:12px;color:var(--muted);margin-top:3px;}
+  .palert{display:none;font-size:12px;color:var(--red);background:var(--rbg);padding:3px 10px;border-radius:10px;margin-top:6px;}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+  .abtn{padding:10px 12px;border-radius:10px;border:1.5px solid var(--brdS);background:var(--surf);color:var(--txt);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
+  .abtn:active{transform:scale(.96);}
+  .abtn.warn{border-color:#E6A000;color:var(--warn);background:var(--wbg);}
+  .rhint{display:none;font-size:13px;color:var(--warn);background:var(--wbg);border-radius:10px;padding:10px 12px;margin-top:10px;}
+  .rhint.on{display:block;}
+
+  /* CONFIRM */
+  .conf{background:var(--surf);border:1.5px solid var(--brdS);border-radius:14px;padding:16px;margin-top:12px;display:none;}
+  .conf.on{display:block;}
+  .cttl{font-size:15px;font-weight:600;margin-bottom:7px;}
+  .cdesc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px;white-space:pre-line;}
+  .cbtns{display:flex;gap:8px;}
+  .bok{padding:11px 22px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
+  .bno{padding:11px 22px;background:var(--surf);color:var(--muted);border:1.5px solid var(--brdS);border-radius:10px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+  .logw{margin-top:12px;}
+  .li{font-size:12px;padding:7px 11px;border-radius:9px;margin-bottom:5px;border-left:3px solid var(--brdS);background:var(--surf);color:var(--muted);}
+  .li.ok{border-color:var(--green);color:var(--green);background:var(--gbg);}
+  .li.warn{border-color:#E6A000;color:var(--warn);background:var(--wbg);}
+  .li.err{border-color:var(--red);color:var(--red);background:var(--rbg);}
+
+  /* TABLET SIDEBAR */
+  .sideb{display:flex;flex-direction:column;gap:12px;}
+  .sbox{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:13px;}
+  .stit{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px;}
+  .sitem{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:9px;margin-bottom:4px;border:1.5px solid transparent;cursor:grab;transition:all .15s;}
+  .sitem.na{cursor:default;opacity:.35;}
+  .sitem.blk{opacity:.3;pointer-events:none;}
+  .sitem.drag-over{border-color:var(--blue);background:var(--bbg);}
+  .sleft{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--txt);}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .dg{background:#34c759;}.db{background:#5e9cf5;}.dy{background:#f5c842;}.do{background:#ff9f0a;}.dr{background:#ff3b30;}
+  .scnt{font-size:13px;font-weight:600;color:var(--txt);}
+  .ssub{font-size:10px;color:var(--muted2);margin-top:1px;}
+  .ditem{display:flex;align-items:center;gap:8px;padding:11px;border-radius:9px;margin-bottom:4px;border:1.5px dashed var(--brdS);font-size:13px;color:var(--muted);transition:all .15s;}
+  .ditem.drag-over{border-style:solid;border-color:var(--blue);background:var(--bbg);color:var(--blue);}
+  .dbaja{background:var(--rbg);border-color:var(--red);border-style:solid;color:var(--red);}
+
+  /* ── MOBILE BOTTOM BAR ── */
+  .mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--surf);border-top:1.5px solid var(--brd);padding:10px 12px 14px;}
+  @media(max-width:640px){.mob-bar{display:block;}}
+  .mob-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+  .mob-btns{display:flex;gap:7px;}
+  .mob-btn{flex:1;padding:10px 6px;border-radius:10px;border:1.5px solid var(--brdS);background:var(--surf2);color:var(--txt);font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .mob-btn:active{transform:scale(.96);}
+  .mob-btn.sel{border-color:var(--blue);background:var(--bbg);color:var(--blue);}
+  .mob-btn.blk{opacity:.3;pointer-events:none;}
+  .mob-btn.exit{border-color:var(--red);background:var(--rbg);color:var(--red);}
+  .mob-btn.exit.blk{opacity:.3;}
+  .mob-divider{height:1px;background:var(--brd);margin:8px 0;}
+  .mob-cnt{font-size:10px;color:inherit;opacity:.7;}
+</style>
+</head>
+<body>
+
+<div id="ghost"></div>
+
+<div class="hdr">
+  <div class="lbox">M</div>
+  <div>
+    <div class="ltit">MOSA — Mapa de Neumáticos</div>
+    <div class="lsub">Tocá = ver opciones · Arrastrá = mover</div>
+  </div>
+</div>
+
+<div class="hbar" id="hbar"></div>
+
+<div class="selbar">
+  <button class="tbtn on" id="btn-JFTH64" onclick="loadTruck('JFTH64',this)">JFTH64 — 4×2</button>
+  <button class="tbtn" id="btn-SGPW85" onclick="loadTruck('SGPW85',this)">SGPW85 — 6×2</button>
+  <button class="tbtn" id="btn-JP2221" onclick="loadTruck('JP2221',this)">JP2221 — Semi</button>
+</div>
+
+<div class="lay">
+  <div>
+    <div class="tbox">
+      <div class="tinfo" id="tinfo"></div>
+      <div id="axles"></div>
+    </div>
+    <div class="panel" id="panel">
+      <div class="ppos" id="ppos"></div>
+      <div class="pfuego" id="pfuego"></div>
+      <div class="pstats" id="pstats"></div>
+      <div class="palert" id="palert"></div>
+      <div class="acts">
+        <button class="abtn" onclick="doAct('psi')">⚙ Regulación PSI</button>
+        <button class="abtn" onclick="doAct('retorqueo')">🔧 Retorqueo</button>
+        <button class="abtn" onclick="doAct('reparacion')">🩹 Reparación</button>
+        <button class="abtn warn" onclick="doAct('rotar')">↻ Rotar</button>
+      </div>
+      <div class="rhint" id="rhint">Tocá la posición destino para completar la rotación</div>
+    </div>
+    <div class="conf" id="conf">
+      <div class="cttl" id="cttl"></div>
+      <div class="cdesc" id="cdesc"></div>
+      <div class="cbtns">
+        <button class="bok" onclick="doOk()">Confirmar</button>
+        <button class="bno" onclick="doNo()">Cancelar</button>
+      </div>
+    </div>
+    <div class="logw" id="logw"></div>
+  </div>
+
+  <!-- TABLET SIDEBAR -->
+  <div class="sideb">
+    <div class="sbox">
+      <div class="stit">Entrada</div>
+      <div class="sitem" id="sbN" draggable="true"
+        ondragstart="stockDragStart(event,'nuevo')"
+        ontouchstart="stockTouchStart(event,'nuevo')"
+        ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
+        <div class="sleft"><div class="dot dg"></div>Nuevo</div>
+        <div><div class="scnt" id="cN">17</div><div class="ssub">disp.</div></div>
+      </div>
+      <div class="sitem" id="sbT" draggable="true"
+        ondragstart="stockDragStart(event,'transito')"
+        ontouchstart="stockTouchStart(event,'transito')"
+        ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
+        <div class="sleft"><div class="dot db"></div>Tránsito</div>
+        <div><div class="scnt" id="cT">196</div><div class="ssub">disp.</div></div>
+      </div>
+      <div class="sitem na">
+        <div class="sleft"><div class="dot dy"></div>Recauchado</div>
+        <div><div class="scnt">101</div><div class="ssub">solo sale</div></div>
+      </div>
+    </div>
+    <div class="sbox">
+      <div class="stit">Salida</div>
+      <div class="ditem" id="destT" ondragover="dOver(event,'destT')" ondragleave="dLeave('destT')" ondrop="dDrop(event,'transito')"><div class="dot db"></div>Tránsito</div>
+      <div class="ditem" id="destR" ondragover="dOver(event,'destR')" ondragleave="dLeave('destR')" ondrop="dDrop(event,'reparacion')"><div class="dot do"></div>Reparación</div>
+      <div class="ditem dbaja" id="destB" ondragover="dOver(event,'destB')" ondragleave="dLeave('destB')" ondrop="dDrop(event,'baja')">🗑 BAJA</div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM BAR: 6 botones fijos -->
+<div class="mob-bar" id="mobBar">
+  <div class="mob-section-label">Entrada</div>
+  <div class="mob-btns">
+    <button class="mob-btn" id="mbN" onclick="mobSelStock('nuevo')">
+      <div class="dot dg" style="width:12px;height:12px;"></div>
+      Nuevo
+      <span class="mob-cnt" id="mbcN">17</span>
+    </button>
+    <button class="mob-btn" id="mbT" onclick="mobSelStock('transito')">
+      <div class="dot db" style="width:12px;height:12px;"></div>
+      Tránsito
+      <span class="mob-cnt" id="mbcT">196</span>
+    </button>
+    <button class="mob-btn" id="mbR" onclick="mobSelStock('recauchado')">
+      <div class="dot dy" style="width:12px;height:12px;"></div>
+      Recauchado
+      <span class="mob-cnt" id="mbcR">101</span>
+    </button>
+  </div>
+  <div class="mob-divider"></div>
+  <div class="mob-section-label">Salida</div>
+  <div class="mob-btns">
+    <button class="mob-btn" data-dest="transito" onclick="mobDest('transito')">
+      <div class="dot db" style="width:12px;height:12px;"></div>
+      Tránsito
+    </button>
+    <button class="mob-btn" data-dest="reparacion" onclick="mobDest('reparacion')">
+      <div class="dot do" style="width:12px;height:12px;"></div>
+      Reparación
+    </button>
+    <button class="mob-btn exit" data-dest="baja" onclick="mobDest('baja')">
+      🗑 BAJA
+    </button>
+  </div>
+</div>
+
+<script>
+const CFG={
+  JFTH64:{config:'4×2',interno:'308',axles:[
+    {tag:'D',sides:[[1],[2]]},
+    {tag:'T',sides:[[3,4],[5,6]]}
+  ]},
+  SGPW85:{config:'6×2',interno:'324',axles:[
+    {tag:'D',sides:[[1],[2]]},
+    {tag:'M',sides:[[3,4],[5,6]]},
+    {tag:'T',sides:[[7,8],[9,10]]}
+  ]},
+  JP2221:{config:'semi 3 ejes',interno:'416',axles:[
+    {tag:'E1',sides:[[1,2],[3,4]]},
+    {tag:'E2',sides:[[5,6],[7,8]]},
+    {tag:'E3',sides:[[9,10],[11,12],[13]]}
+  ]}
+};
+const MARCAS=['GOODYEAR','MICHELIN','WESLAKE','BRIDGESTONE','TRIANGLE'];
+let truck='JFTH64',tires={},selPos=null,rotSrc=null,pending=null;
+let stock={nuevo:17,transito:196,recauchado:101};
+let draggingPos=null,draggingStock=null,mobStock=null;
+let touchData=null,touchActive=false,touchMoved=false;
+const DRAG_THRESHOLD=10; // px moved before considered drag
+let touchStartX=0,touchStartY=0;
+const ghost=document.getElementById('ghost');
+let scrollInterval=null;
+
+function sem(){const n=new Date(),s=new Date(n.getFullYear(),0,1);return String(Math.ceil((n-s)/604800000)).padStart(2,'0');}
+function genNF(int,pos){return `${int}${sem()}26${String(pos).padStart(2,'0')}`;}
+function mkTire(pos,int){
+  const mm=4+Math.floor(Math.random()*10),psi=pos===3?71:88+Math.floor(Math.random()*15);
+  return{pos,fuego:genNF(int,pos),mm,psi,estado:['nuevo','transito','recauchado'][pos%3],marca:MARCAS[pos%5]};
+}
+
+function loadTruck(id,btn){
+  truck=id;selPos=null;rotSrc=null;pending=null;draggingPos=null;draggingStock=null;mobStock=null;touchData=null;
+  const c=CFG[id];tires={};
+  c.axles.forEach(ax=>ax.sides.forEach(s=>s.forEach(p=>{tires[p]=mkTire(p,c.interno);})));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  ['panel','conf','rhint'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('logw').innerHTML='';
+  hideHbar();clearMobSel();
+  document.getElementById('tinfo').innerHTML=`<strong>${id}</strong> · ${c.config} · Interno ${c.interno}`;
+  renderAxles();updSB();
+}
+
+function renderAxles(){
+  const c=CFG[truck],wrap=document.getElementById('axles');
+  wrap.innerHTML='';
+  c.axles.forEach(ax=>{
+    const axDiv=document.createElement('div');axDiv.className='axle';
+    axDiv.innerHTML=`<div class="axle-bar"></div><div class="atag">${ax.tag}</div>`;
+    ax.sides.forEach((side,si)=>{
+      const sd=document.createElement('div');sd.className=side.length>1?'dbl aside':'aside';
+      side.forEach(p=>sd.appendChild(mkEl(p)));
+      axDiv.appendChild(sd);
+      if(si===0&&ax.sides.length>1){const sp=document.createElement('div');sp.style.width='24px';axDiv.appendChild(sp);}
+    });
+    wrap.appendChild(axDiv);
+  });
+}
+
+function mkEl(pos){
+  const t=tires[pos],div=document.createElement('div');
+  div.className='tire';div.id='t'+pos;
+  if(!t){
+    div.classList.add('empty');
+    div.innerHTML=`<div class="tp">P${pos}</div><div style="font-size:9px;color:var(--muted2)">vacío</div>`;
+    div.ondragover=e=>{e.preventDefault();div.classList.add('drop-target');};
+    div.ondragleave=()=>div.classList.remove('drop-target');
+    div.ondrop=e=>{e.preventDefault();div.classList.remove('drop-target');dropOnPos(pos);};
+    div.onclick=()=>{
+      if(mobStock){doMobMontaje(pos);return;}
+      if(rotSrc!==null){showConf('Mover a posición vacía',`Mover ${tires[rotSrc]?.fuego} de pos ${rotSrc} → pos ${pos}. ¿Confirmar?`,{type:'rotacion',from:rotSrc,to:pos});}
+    };
+    return div;
+  }
+  if(t.psi<85||t.mm<4)div.classList.add('alerta');
+  if(rotSrc===pos)div.classList.add('rot');
+  div.innerHTML=`<div class="tp">P${pos}</div><div class="tm">${t.mm}mm</div><div class="tpsi">${t.psi}psi</div>`;
+  div.draggable=true;
+  div.ondragstart=e=>{e.dataTransfer.effectAllowed='move';draggingPos=pos;draggingStock=null;div.classList.add('dragging');setTimeout(()=>renderAxles(),0);};
+  div.ondragend=()=>{draggingPos=null;stopScroll();renderAxles();};
+  div.ondragover=e=>{e.preventDefault();div.classList.add('drop-target');autoScroll(e.clientY);};
+  div.ondragleave=()=>div.classList.remove('drop-target');
+  div.ondrop=e=>{e.preventDefault();div.classList.remove('drop-target');stopScroll();dropOnPos(pos);};
+  // TOUCH — distingue tap vs arrastre
+  div.ontouchstart=e=>tireTouchStart(e,pos);
+  div.ontouchmove=onTouchMove;
+  div.ontouchend=e=>tireTouchEnd(e,pos);
+  return div;
+}
+
+// ── TOUCH TAP VS DRAG ──
+function tireTouchStart(e,pos){
+  const t=e.touches[0];
+  touchStartX=t.clientX;touchStartY=t.clientY;
+  touchMoved=false;
+  touchData={type:'tire',pos};
+  touchActive=false;
+  e.preventDefault(); // prevent browser drag/select interference
+}
+function onTouchMove(e){
+  if(!touchData)return;
+  const t=e.touches[0];
+  const dx=Math.abs(t.clientX-touchStartX),dy=Math.abs(t.clientY-touchStartY);
+  if(dx>DRAG_THRESHOLD||dy>DRAG_THRESHOLD){
+    touchMoved=true;
+    if(!touchActive){
+      // became a drag
+      touchActive=true;
+      ghost.style.display='flex';
+      if(touchData.type==='tire'){
+        const tire=tires[touchData.pos];
+        ghost.innerHTML=`P${touchData.pos}<br>${tire?.mm}mm`;
+      } else {
+        ghost.innerHTML=touchData.tipo==='nuevo'?'🟢':'🔵';
+      }
+    }
+    moveGhost(t);
+    autoScroll(t.clientY);
+    e.preventDefault();
+    clearHL();
+    const el=document.elementFromPoint(t.clientX,t.clientY);
+    if(el){
+      const te=el.closest('.tire'),de=el.closest('.ditem');
+      if(te)te.classList.add('drop-target');
+      if(de)de.classList.add('drag-over');
+    }
+  }
+}
+function tireTouchEnd(e,pos){
+  ghost.style.display='none';stopScroll();clearHL();
+  if(!touchMoved){
+    // TAP — open panel
+    touchData=null;touchActive=false;
+    if(mobStock){doMobMontaje(pos);return;}
+    if(rotSrc!==null&&rotSrc!==pos){
+      showConf('Rotación',`Rotar: pos ${rotSrc} ↔ pos ${pos}. ¿Confirmar?`,{type:'rotacion',from:rotSrc,to:pos});
+      return;
+    }
+    selPos=pos;openPanel(tires[pos],pos);
+    return;
+  }
+  // DRAG END
+  const tc=e.changedTouches[0];
+  const el=document.elementFromPoint(tc.clientX,tc.clientY);
+  if(el&&touchData){
+    const te=el.closest('.tire');
+    const de=el.closest('.ditem');
+    const mb=el.closest('.mob-btn');
+    if(te){
+      const p=parseInt(te.id.replace('t',''));
+      if(!isNaN(p)&&touchData.pos!==p){draggingPos=touchData.pos;dropOnPos(p);}
+    } else if(de){
+      const dest=de.dataset.dest;
+      if(dest){draggingPos=touchData.pos;dDrop({preventDefault:()=>{}},dest);}
+    } else if(mb){
+      const dest=mb.dataset.dest;
+      if(dest){draggingPos=touchData.pos;dDrop({preventDefault:()=>{}},dest);}
+    }
+  }
+  touchData=null;touchActive=false;touchMoved=false;
+}
+
+function stockTouchStart(e,tipo){
+  if(stock[tipo]<=0)return;
+  const t=e.touches[0];
+  touchStartX=t.clientX;touchStartY=t.clientY;
+  touchMoved=false;touchActive=false;
+  touchData={type:'stock',tipo};
+  e.preventDefault();
+}
+
+function onTouchEnd(e){
+  // for stock items
+  ghost.style.display='none';stopScroll();clearHL();
+  if(!touchMoved||!touchData){touchData=null;touchActive=false;touchMoved=false;return;}
+  const tc=e.changedTouches[0];
+  const el=document.elementFromPoint(tc.clientX,tc.clientY);
+  if(el&&touchData){
+    const te=el.closest('.tire');
+    if(te){const p=parseInt(te.id.replace('t',''));if(!isNaN(p)){draggingStock=touchData.tipo;dropOnPos(p);}}
+  }
+  touchData=null;touchActive=false;touchMoved=false;
+}
+
+function dropOnPos(pos){
+  if(draggingStock){
+    if(tires[pos]){addLog('Posición ya tiene neumático','err');draggingStock=null;return;}
+    const nfG=genNF(CFG[truck].interno,pos);
+    showConf('Montaje',`Montar neumático ${draggingStock} en posición ${pos}.\nN° fuego sugerido: ${nfG}. ¿Confirmar?`,{type:'montaje',pos,tipo:draggingStock,nf:nfG});
+  } else if(draggingPos!==null&&draggingPos!==pos){
+    const tf=tires[draggingPos],tt=tires[pos];
+    showConf('Rotación / Movimiento',`Mover ${tf.fuego} de pos ${draggingPos} → pos ${pos}. ${tt?`El neumático ${tt.fuego} pasará a pos ${draggingPos}.`:''} ¿Confirmar?`,{type:'rotacion',from:draggingPos,to:pos});
+  }
+  draggingPos=null;draggingStock=null;
+}
+
+function dOver(e,id){e.preventDefault();document.getElementById(id).classList.add('drag-over');autoScroll(e.clientY);}
+function dLeave(id){document.getElementById(id).classList.remove('drag-over');stopScroll();}
+function dDrop(e,dest){
+  e.preventDefault();stopScroll();
+  ['destT','destR','destB'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('drag-over');});
+  if(draggingPos===null){draggingStock=null;return;}
+  const t=tires[draggingPos];
+  const DL={transito:'tránsito',reparacion:'reparación',baja:'BAJA'};
+  showConf(`Mover a ${DL[dest]}`,`Sacar ${t.fuego} de pos ${draggingPos} → ${DL[dest]}. ¿Confirmar?`,{type:'salida',pos:draggingPos,dest});
+  draggingPos=null;
+}
+function stockDragStart(e,tipo){
+  if(stock[tipo]<=0)return;
+  e.dataTransfer.effectAllowed='copy';draggingStock=tipo;draggingPos=null;
+}
+
+function openPanel(t,pos){
+  if(!t)return;
+  const panel=document.getElementById('panel');panel.classList.add('on');
+  document.getElementById('ppos').textContent=`Posición ${pos}`;
+  document.getElementById('pfuego').textContent=t.fuego;
+  document.getElementById('pstats').textContent=`${t.mm}mm · ${t.psi}psi · ${t.estado} · ${t.marca}`;
+  const al=document.getElementById('palert'),alerts=[];
+  if(t.psi<85)alerts.push('⚠ PSI bajo');
+  if(t.mm<4)alerts.push('⚠ Desgaste bajo');
+  al.textContent=alerts.join(' · ');al.style.display=alerts.length?'inline-block':'none';
+  document.getElementById('conf').classList.remove('on');
+  document.getElementById('rhint').classList.remove('on');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function doAct(type){
+  if(!selPos)return;
+  const t=tires[selPos];
+  if(type==='rotar'){
+    rotSrc=selPos;
+    document.getElementById('rhint').classList.add('on');
+    showHbar('Tocá la posición destino para completar la rotación');
+    renderAxles();return;
+  }
+  const L={psi:'Regulación PSI',retorqueo:'Retorqueo',reparacion:'Reparación'};
+  showConf(L[type],`Registrar ${L[type].toLowerCase()} al neumático ${t.fuego} (pos ${selPos}, ${t.mm}mm · ${t.psi}psi). ¿Confirmar?`,{type,pos:selPos});
+}
+
+// MOBILE BOTONES
+function mobSelStock(tipo){
+  if(stock[tipo]<=0)return;
+  mobStock=tipo;selPos=null;
+  document.getElementById('panel').classList.remove('on');
+  document.getElementById('mbN').classList.toggle('sel',tipo==='nuevo');
+  document.getElementById('mbT').classList.toggle('sel',tipo==='transito');
+  document.getElementById('mbR').classList.toggle('sel',tipo==='recauchado');
+  showHbar(`Tocá la posición vacía donde querés montar el neumático ${tipo}`);
+  renderAxles();
+}
+function doMobMontaje(pos){
+  if(!mobStock)return;
+  const nfG=genNF(CFG[truck].interno,pos);
+  showConf('Montaje',`Montar neumático ${mobStock} en posición ${pos}.\nN° fuego sugerido: ${nfG}. ¿Confirmar?`,{type:'montaje',pos,tipo:mobStock,nf:nfG});
+}
+function mobDest(dest){
+  if(!selPos){addLog('Primero tocá el neumático que querés sacar','err');return;}
+  const t=tires[selPos];
+  const DL={transito:'tránsito',reparacion:'reparación',baja:'BAJA'};
+  showConf(`Mover a ${DL[dest]}`,`Sacar ${t.fuego} de pos ${selPos} → ${DL[dest]}. ¿Confirmar?`,{type:'salida',pos:selPos,dest});
+}
+function clearMobSel(){
+  mobStock=null;
+  ['mbN','mbT','mbR'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('sel');});
+}
+
+function showConf(title,desc,action){
+  pending=action;
+  document.getElementById('cttl').textContent=title;
+  document.getElementById('cdesc').textContent=desc;
+  document.getElementById('conf').classList.add('on');
+  document.getElementById('conf').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function doOk(){
+  const a=pending;if(!a)return;
+  if(a.type==='rotacion'){
+    const tmp=tires[a.from];tires[a.from]=tires[a.to];tires[a.to]=tmp;
+    if(tires[a.from])tires[a.from].pos=a.from;
+    if(tires[a.to])tires[a.to].pos=a.to;
+    addLog(`✓ Rotación: pos ${a.from} ↔ pos ${a.to}`,'ok');
+    rotSrc=null;document.getElementById('rhint').classList.remove('on');hideHbar();
+  } else if(a.type==='salida'){
+    addLog(`✓ ${a.dest==='baja'?'Baja':'Salida'}: ${tires[a.pos].fuego} → ${a.dest}`,'ok');
+    delete tires[a.pos];selPos=null;document.getElementById('panel').classList.remove('on');
+  } else if(a.type==='montaje'){
+    tires[a.pos]={pos:a.pos,fuego:a.nf,mm:13,psi:100,estado:a.tipo,marca:'—'};
+    if(stock[a.tipo]!==undefined)stock[a.tipo]--;
+    addLog(`✓ Montaje: ${a.nf} en pos ${a.pos} (${a.tipo})`,'ok');
+    clearMobSel();hideHbar();
+  } else if(a.type==='psi')addLog(`✓ Regulación PSI — pos ${a.pos}`,'ok');
+  else if(a.type==='retorqueo')addLog(`✓ Retorqueo — pos ${a.pos}`,'ok');
+  else if(a.type==='reparacion')addLog(`✓ Reparación — pos ${a.pos}`,'ok');
+  pending=null;
+  document.getElementById('conf').classList.remove('on');
+  updSB();renderAxles();
+}
+function doNo(){
+  pending=null;rotSrc=null;draggingPos=null;draggingStock=null;touchData=null;touchActive=false;touchMoved=false;
+  clearMobSel();
+  document.getElementById('conf').classList.remove('on');
+  document.getElementById('rhint').classList.remove('on');
+  hideHbar();renderAxles();
+}
+
+function updSB(){
+  const map={cN:'nuevo',cT:'transito',mbcN:'nuevo',mbcT:'transito',mbcR:'recauchado'};
+  Object.entries(map).forEach(([id,tipo])=>{const el=document.getElementById(id);if(el)el.textContent=stock[tipo];});
+  const btnMap={sbN:'nuevo',sbT:'transito',mbN:'nuevo',mbT:'transito',mbR:'recauchado'};
+  Object.entries(btnMap).forEach(([id,tipo])=>{const el=document.getElementById(id);if(el)el.classList.toggle('blk',stock[tipo]<=0);});
+}
+function showHbar(msg){const b=document.getElementById('hbar');b.textContent=msg;b.classList.add('on');}
+function hideHbar(){document.getElementById('hbar').classList.remove('on');}
+function autoScroll(y){
+  stopScroll();const vh=window.innerHeight,Z=80,S=8;
+  if(y<Z)scrollInterval=setInterval(()=>window.scrollBy(0,-S),16);
+  else if(y>vh-Z)scrollInterval=setInterval(()=>window.scrollBy(0,S),16);
+}
+function stopScroll(){if(scrollInterval){clearInterval(scrollInterval);scrollInterval=null;}}
+function moveGhost(t){ghost.style.left=(t.clientX-30)+'px';ghost.style.top=(t.clientY-30)+'px';}
+function clearHL(){document.querySelectorAll('.drop-target').forEach(e=>e.classList.remove('drop-target'));document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));}
+function addLog(msg,type=''){
+  const log=document.getElementById('logw');
+  const d=document.createElement('div');d.className=`li ${type}`;
+  const h=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  d.textContent=`${h} — ${msg}`;
+  log.insertBefore(d,log.firstChild);
+  while(log.children.length>5)log.removeChild(log.lastChild);
+}
+
+loadTruck('JFTH64',document.getElementById('btn-JFTH64'));
+</script>
+</body>
+</html>
