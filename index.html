@@ -19,23 +19,38 @@
   }
   html,body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
 
+  /* HEADER */
   .hdr{background:var(--surf);border-bottom:1px solid var(--brd);padding:14px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
   .lbox{width:34px;height:34px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;}
   .ltit{font-size:15px;font-weight:600;}
   .lsub{font-size:11px;color:var(--muted);}
 
-  .selbar{padding:12px 18px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+  /* TRUCK SELECTOR */
+  .selbar{padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
   .selbar::-webkit-scrollbar{display:none;}
   .tbtn{padding:9px 16px;border-radius:20px;border:1.5px solid var(--brdS);background:var(--surf);color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all .15s;}
   .tbtn.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
 
-  .lay{display:grid;grid-template-columns:1fr 200px;gap:14px;padding:16px 18px;max-width:960px;margin:0 auto;}
-  @media(max-width:640px){.lay{grid-template-columns:1fr;}}
+  /* HINT BAR */
+  .hbar{background:#1a1a1a;color:#fff;text-align:center;font-size:13px;padding:10px 16px;display:none;}
+  .hbar.on{display:block;}
 
+  /* TABLET LAYOUT */
+  .lay{display:grid;grid-template-columns:1fr 200px;gap:14px;padding:16px 18px;max-width:960px;margin:0 auto;}
+
+  /* MOBILE LAYOUT — stack differently */
+  @media(max-width:640px){
+    .lay{grid-template-columns:1fr;padding:12px;gap:10px;}
+    .sideb{display:none !important;} /* hide sidebar on mobile */
+    .mob-tray{display:flex !important;}
+  }
+
+  /* TRUCK BOX */
   .tbox{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:16px;}
   .tinfo{font-size:13px;color:var(--muted);margin-bottom:14px;}
   .tinfo strong{color:var(--txt);font-weight:500;}
 
+  /* AXLE */
   .axle{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 0;position:relative;}
   .axle-bar{position:absolute;left:5%;right:5%;height:4px;background:var(--brd);border-radius:2px;z-index:0;}
   .atag{font-size:10px;color:var(--muted2);font-weight:700;position:absolute;left:0;width:20px;text-align:center;}
@@ -44,8 +59,9 @@
 
   /* TIRE */
   .tire{width:64px;height:64px;border-radius:50%;border:2.5px solid var(--brdS);background:var(--surf);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;user-select:none;flex-shrink:0;transition:border-color .15s,box-shadow .15s;position:relative;touch-action:none;}
-  .tire.dragging{opacity:.4;cursor:grabbing;}
-  .tire.empty{border-style:dashed;border-color:var(--muted2);background:var(--bg);opacity:.4;cursor:default;}
+  @media(max-width:640px){.tire{width:58px;height:58px;}}
+  .tire.dragging{opacity:.35;cursor:grabbing;}
+  .tire.empty{border-style:dashed;border-color:var(--muted2);background:var(--bg);opacity:.45;cursor:default;}
   .tire.alerta{border-color:var(--red);background:var(--rbg);}
   .tire.rot{border-color:#E6A000;background:var(--wbg);animation:blink .8s infinite;}
   .tire.drop-target{border-color:#1a1a1a;border-width:3px;box-shadow:0 0 0 4px rgba(26,26,26,.12);}
@@ -56,9 +72,10 @@
   .tire.alerta .tm,.tire.alerta .tpsi{color:var(--red);}
   .tire.rot .tm{color:var(--warn);}
 
-  /* DRAG GHOST */
-  #ghost{position:fixed;pointer-events:none;z-index:9999;width:64px;height:64px;border-radius:50%;background:#1a1a1a;color:#fff;display:none;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;line-height:1.3;padding:4px;border:3px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+  /* GHOST */
+  #ghost{position:fixed;pointer-events:none;z-index:9999;width:64px;height:64px;border-radius:50%;background:#1a1a1a;color:#fff;display:none;align-items:center;justify-content:center;font-size:11px;font-weight:600;text-align:center;line-height:1.3;padding:4px;border:3px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,.35);}
 
+  /* PANEL (tap info) */
   .panel{background:var(--surf2);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-top:12px;display:none;}
   .panel.on{display:block;}
   .ppos{font-size:12px;color:var(--muted);margin-bottom:2px;}
@@ -66,32 +83,34 @@
   .pstats{font-size:13px;color:var(--muted);margin-top:3px;}
   .palert{display:none;font-size:12px;color:var(--red);background:var(--rbg);padding:3px 10px;border-radius:10px;margin-top:6px;}
   .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
-  .abtn{padding:10px 13px;border-radius:10px;border:1.5px solid var(--brdS);background:var(--surf);color:var(--txt);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+  .abtn{padding:10px 13px;border-radius:10px;border:1.5px solid var(--brdS);background:var(--surf);color:var(--txt);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
   .abtn:active{transform:scale(.97);}
   .abtn.warn{border-color:#E6A000;color:var(--warn);background:var(--wbg);}
   .rhint{display:none;font-size:13px;color:var(--warn);background:var(--wbg);border-radius:10px;padding:10px 12px;margin-top:10px;}
   .rhint.on{display:block;}
 
+  /* CONFIRM */
   .conf{background:var(--surf);border:1.5px solid var(--brdS);border-radius:14px;padding:16px;margin-top:12px;display:none;}
   .conf.on{display:block;}
   .cttl{font-size:15px;font-weight:600;margin-bottom:8px;}
-  .cdesc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+  .cdesc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px;white-space:pre-line;}
   .cbtns{display:flex;gap:8px;}
-  .bok{padding:10px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
-  .bno{padding:10px 20px;background:var(--surf);color:var(--muted);border:1.5px solid var(--brdS);border-radius:10px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .bok{padding:11px 22px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
+  .bno{padding:11px 22px;background:var(--surf);color:var(--muted);border:1.5px solid var(--brdS);border-radius:10px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
 
+  /* LOG */
   .logw{margin-top:12px;}
   .li{font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:5px;border-left:3px solid var(--brdS);background:var(--surf);color:var(--muted);}
   .li.ok{border-color:var(--green);color:var(--green);background:var(--gbg);}
   .li.warn{border-color:#E6A000;color:var(--warn);background:var(--wbg);}
   .li.err{border-color:var(--red);color:var(--red);background:var(--rbg);}
 
+  /* SIDEBAR (tablet) */
   .sideb{display:flex;flex-direction:column;gap:12px;}
   .sbox{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:14px;}
   .stit{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
-  .sitem{display:flex;align-items:center;justify-content:space-between;padding:10px 11px;border-radius:10px;margin-bottom:5px;border:1.5px solid transparent;transition:all .15s;cursor:default;}
-  .sitem.draggable{cursor:grab;}
-  .sitem.draggable:active{cursor:grabbing;}
+  .sitem{display:flex;align-items:center;justify-content:space-between;padding:10px 11px;border-radius:10px;margin-bottom:5px;border:1.5px solid transparent;transition:all .15s;cursor:grab;}
+  .sitem.na{cursor:default;opacity:.35;}
   .sitem.blk{opacity:.3;pointer-events:none;}
   .sitem.drag-over{border-color:var(--blue);background:var(--bbg);}
   .sleft{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt);}
@@ -99,14 +118,25 @@
   .dg{background:#34c759;}.db{background:#5e9cf5;}.dy{background:#f5c842;}.do{background:#ff9f0a;}.dr{background:#ff3b30;}
   .scnt{font-size:14px;font-weight:600;color:var(--txt);}
   .ssub{font-size:11px;color:var(--muted2);margin-top:1px;}
-
-  .ditem{display:flex;align-items:center;gap:9px;padding:12px;border-radius:10px;margin-bottom:5px;border:1.5px dashed var(--brdS);font-size:14px;color:var(--muted);transition:all .15s;cursor:default;}
+  .ditem{display:flex;align-items:center;gap:9px;padding:12px;border-radius:10px;margin-bottom:5px;border:1.5px dashed var(--brdS);font-size:14px;color:var(--muted);transition:all .15s;}
   .ditem.drag-over{border-style:solid;border-color:var(--blue);background:var(--bbg);color:var(--blue);}
   .dbaja{background:var(--rbg);border-color:var(--red);border-style:solid;color:var(--red);}
-  .dbaja.drag-over{background:var(--rbg);border-color:var(--red);color:var(--red);}
 
-  .hint-bar{background:#1a1a1a;color:#fff;text-align:center;font-size:13px;padding:10px;display:none;}
-  .hint-bar.on{display:block;}
+  /* MOBILE TRAY — fixed bottom panel */
+  .mob-tray{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;flex-direction:column;}
+  .mob-tabs{display:flex;background:#1a1a1a;}
+  .mtab{flex:1;padding:12px;text-align:center;font-size:13px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+  .mtab.on{color:#fff;border-bottom-color:var(--wbg);}
+  .mob-content{background:var(--surf);border-top:1px solid var(--brd);padding:14px 16px;max-height:200px;overflow-y:auto;}
+  .mob-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .mob-stock-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:10px;border:1.5px solid var(--brdS);background:var(--surf);font-size:14px;font-weight:500;color:var(--txt);cursor:pointer;flex:1;min-width:120px;font-family:'Inter',sans-serif;transition:all .15s;}
+  .mob-stock-btn:active{transform:scale(.97);}
+  .mob-stock-btn.sel{border-color:var(--blue);background:var(--bbg);color:var(--blue);}
+  .mob-stock-btn.blk{opacity:.3;pointer-events:none;}
+  .mob-dest-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:10px;border:1.5px dashed var(--brdS);background:var(--surf);font-size:14px;color:var(--muted);cursor:pointer;flex:1;min-width:100px;font-family:'Inter',sans-serif;transition:all .15s;}
+  .mob-dest-btn:active{transform:scale(.97);}
+  .mob-dest-btn.baja{border-style:solid;border-color:var(--red);background:var(--rbg);color:var(--red);}
+  .mob-pb{padding-bottom:180px;} /* padding so content isn't behind tray */
 </style>
 </head>
 <body>
@@ -117,19 +147,19 @@
   <div class="lbox">M</div>
   <div>
     <div class="ltit">MOSA — Mapa de Neumáticos</div>
-    <div class="lsub">Arrastrá los neumáticos para moverlos</div>
+    <div class="lsub" id="lsub">Arrastrá o tocá para mover</div>
   </div>
 </div>
 
-<div class="hint-bar" id="hintBar"></div>
+<div class="hbar" id="hbar"></div>
 
 <div class="selbar">
-  <button class="tbtn on" id="btn-JFTH64" onclick="loadTruck('JFTH64',this)">JFTH64 — Tracto 4×2</button>
-  <button class="tbtn" id="btn-SGPW85" onclick="loadTruck('SGPW85',this)">SGPW85 — Tracto 6×2</button>
+  <button class="tbtn on" id="btn-JFTH64" onclick="loadTruck('JFTH64',this)">JFTH64 — 4×2</button>
+  <button class="tbtn" id="btn-SGPW85" onclick="loadTruck('SGPW85',this)">SGPW85 — 6×2</button>
   <button class="tbtn" id="btn-JP2221" onclick="loadTruck('JP2221',this)">JP2221 — Semi 3 ejes</button>
 </div>
 
-<div class="lay">
+<div class="lay mob-pb">
   <div>
     <div class="tbox">
       <div class="tinfo" id="tinfo"></div>
@@ -144,7 +174,7 @@
         <button class="abtn" onclick="doAct('psi')">⚙ Regulación PSI</button>
         <button class="abtn" onclick="doAct('retorqueo')">🔧 Retorqueo</button>
         <button class="abtn" onclick="doAct('reparacion')">🩹 Reparación</button>
-        <button class="abtn warn" onclick="doAct('rotar')">↻ Rotar (toque)</button>
+        <button class="abtn warn" onclick="doAct('rotar')">↻ Rotar</button>
       </div>
       <div class="rhint" id="rhint">Tocá la posición destino para completar la rotación</div>
     </div>
@@ -159,54 +189,71 @@
     <div class="logw" id="logw"></div>
   </div>
 
+  <!-- TABLET SIDEBAR -->
   <div class="sideb">
     <div class="sbox">
       <div class="stit">Bodega — entrada</div>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Arrastrá hacia una posición vacía ↓</p>
-      <div class="sitem draggable" id="sbN" data-stock="nuevo"
-        draggable="true"
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Arrastrá hacia posición vacía</p>
+      <div class="sitem" id="sbN" draggable="true"
         ondragstart="stockDragStart(event,'nuevo')"
         ontouchstart="stockTouchStart(event,'nuevo')"
-        ontouchmove="onTouchMove(event)"
-        ontouchend="onTouchEnd(event)">
+        ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
         <div class="sleft"><div class="dot dg"></div>Nuevo</div>
         <div><div class="scnt" id="cN">17</div><div class="ssub">disponibles</div></div>
       </div>
-      <div class="sitem draggable" id="sbT" data-stock="transito"
-        draggable="true"
+      <div class="sitem" id="sbT" draggable="true"
         ondragstart="stockDragStart(event,'transito')"
         ontouchstart="stockTouchStart(event,'transito')"
-        ontouchmove="onTouchMove(event)"
-        ontouchend="onTouchEnd(event)">
+        ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
         <div class="sleft"><div class="dot db"></div>Tránsito</div>
         <div><div class="scnt" id="cT">196</div><div class="ssub">disponibles</div></div>
       </div>
-      <div class="sitem" style="opacity:.35">
+      <div class="sitem na">
         <div class="sleft"><div class="dot dy"></div>Recauchado</div>
         <div><div class="scnt">101</div><div class="ssub">solo sale</div></div>
       </div>
     </div>
     <div class="sbox">
       <div class="stit">Destino — salida</div>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Arrastrá un neumático aquí ↓</p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Arrastrá un neumático aquí</p>
       <div class="ditem" id="destT" data-dest="transito"
-        ondragover="destDragOver(event,'transito')"
-        ondragleave="destDragLeave('transito')"
-        ondrop="destDrop(event,'transito')">
+        ondragover="dOver(event,'destT')" ondragleave="dLeave('destT')" ondrop="dDrop(event,'transito')">
         <div class="dot db"></div>Tránsito
       </div>
       <div class="ditem" id="destR" data-dest="reparacion"
-        ondragover="destDragOver(event,'reparacion')"
-        ondragleave="destDragLeave('reparacion')"
-        ondrop="destDrop(event,'reparacion')">
+        ondragover="dOver(event,'destR')" ondragleave="dLeave('destR')" ondrop="dDrop(event,'reparacion')">
         <div class="dot do"></div>Reparación
       </div>
       <div class="ditem dbaja" id="destB" data-dest="baja"
-        ondragover="destDragOver(event,'baja')"
-        ondragleave="destDragLeave('baja')"
-        ondrop="destDrop(event,'baja')">
+        ondragover="dOver(event,'destB')" ondragleave="dLeave('destB')" ondrop="dDrop(event,'baja')">
         🗑 BAJA
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM TRAY -->
+<div class="mob-tray" id="mobTray">
+  <div class="mob-tabs">
+    <div class="mtab on" id="mtab-entrada" onclick="switchMobTab('entrada')">📦 Entrada</div>
+    <div class="mtab" id="mtab-salida" onclick="switchMobTab('salida')">📤 Salida</div>
+  </div>
+  <div class="mob-content" id="mobContent">
+    <div class="mob-row" id="mobEntrada">
+      <button class="mob-stock-btn" id="mbN" onclick="mobSelStock('nuevo')">
+        <div class="dot dg"></div> Nuevo <span id="mbcN" style="margin-left:auto;font-size:12px;color:var(--muted)">17</span>
+      </button>
+      <button class="mob-stock-btn" id="mbT" onclick="mobSelStock('transito')">
+        <div class="dot db"></div> Tránsito <span id="mbcT" style="margin-left:auto;font-size:12px;color:var(--muted)">196</span>
+      </button>
+      <button class="mob-stock-btn na" style="opacity:.35;pointer-events:none;">
+        <div class="dot dy"></div> Recauchado <span style="margin-left:auto;font-size:11px;color:var(--muted)">solo sale</span>
+      </button>
+    </div>
+    <div class="mob-row" id="mobSalida" style="display:none;">
+      <button class="mob-dest-btn" onclick="mobDest('transito')"><div class="dot db"></div> Tránsito</button>
+      <button class="mob-dest-btn" onclick="mobDest('reparacion')"><div class="dot do"></div> Reparación</button>
+      <button class="mob-dest-btn baja" onclick="mobDest('baja')">🗑 BAJA</button>
     </div>
   </div>
 </div>
@@ -233,20 +280,23 @@ const MARCAS=['GOODYEAR','MICHELIN','WESLAKE','BRIDGESTONE','TRIANGLE'];
 let truck='JFTH64',tires={},selPos=null,rotSrc=null,pending=null;
 let stock={nuevo:17,transito:196};
 let draggingPos=null,draggingStock=null;
+let touchData=null,touchActive=false;
+let mobStock=null; // for mobile tap-based flow
+const ghost=document.getElementById('ghost');
+let scrollInterval=null;
 
-// ─── TOUCH DRAG STATE ───
-let touchGhost=document.getElementById('ghost');
-let touchActive=false,touchItem=null;
-
+// ── UTILS ──
 function sem(){const n=new Date(),s=new Date(n.getFullYear(),0,1);return String(Math.ceil((n-s)/604800000)).padStart(2,'0');}
 function genNF(interno,pos){return `${interno}${sem()}26${String(pos).padStart(2,'0')}`;}
 function mkTire(pos,interno){
   const mm=4+Math.floor(Math.random()*10),psi=pos===3?71:88+Math.floor(Math.random()*15);
   return{pos,fuego:genNF(interno,pos),mm,psi,estado:['nuevo','transito','recauchado'][pos%3],marca:MARCAS[pos%5]};
 }
+function isMob(){return window.innerWidth<=640;}
 
+// ── LOAD TRUCK ──
 function loadTruck(id,btn){
-  truck=id;selPos=null;rotSrc=null;pending=null;draggingPos=null;draggingStock=null;
+  truck=id;selPos=null;rotSrc=null;pending=null;draggingPos=null;draggingStock=null;mobStock=null;touchData=null;
   const c=CFG[id];tires={};
   c.axles.forEach(ax=>ax.sides.forEach(s=>s.forEach(p=>{tires[p]=mkTire(p,c.interno);})));
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
@@ -255,11 +305,13 @@ function loadTruck(id,btn){
   document.getElementById('conf').classList.remove('on');
   document.getElementById('rhint').classList.remove('on');
   document.getElementById('logw').innerHTML='';
-  hideHint();
+  hideHbar();
   document.getElementById('tinfo').innerHTML=`<strong>${id}</strong> &nbsp;·&nbsp; ${c.config} &nbsp;·&nbsp; Interno ${c.interno}`;
   renderAxles();updSB();
+  clearMobSel();
 }
 
+// ── RENDER ──
 function renderAxles(){
   const c=CFG[truck],wrap=document.getElementById('axles');
   wrap.innerHTML='';
@@ -270,7 +322,7 @@ function renderAxles(){
       const sd=document.createElement('div');sd.className=side.length>1?'dbl aside':'aside';
       side.forEach(p=>sd.appendChild(mkEl(p)));
       axDiv.appendChild(sd);
-      if(si===0&&ax.sides.length>1){const sp=document.createElement('div');sp.style.width='28px';axDiv.appendChild(sp);}
+      if(si===0&&ax.sides.length>1){const sp=document.createElement('div');sp.style.width='26px';axDiv.appendChild(sp);}
     });
     wrap.appendChild(axDiv);
   });
@@ -282,10 +334,13 @@ function mkEl(pos){
   if(!t){
     div.classList.add('empty');
     div.innerHTML=`<div class="tp">P${pos}</div><div style="font-size:9px;color:var(--muted2)">vacío</div>`;
-    // drop target for empty positions
     div.ondragover=e=>{e.preventDefault();div.classList.add('drop-target');};
     div.ondragleave=()=>div.classList.remove('drop-target');
     div.ondrop=e=>{e.preventDefault();div.classList.remove('drop-target');dropOnPos(pos);};
+    div.onclick=()=>{
+      if(mobStock){doMobMontaje(pos);}
+      else if(rotSrc!==null){showConf('Mover a posición vacía',`Mover ${tires[rotSrc].fuego} de posición ${rotSrc} → ${pos}. ¿Confirmar?`,{type:'rotacion',from:rotSrc,to:pos});}
+    };
     return div;
   }
   if(t.psi<85||t.mm<4)div.classList.add('alerta');
@@ -293,152 +348,184 @@ function mkEl(pos){
   div.innerHTML=`<div class="tp">P${pos}</div><div class="tm">${t.mm}mm</div><div class="tpsi">${t.psi}psi</div>`;
   div.draggable=true;
   div.ondragstart=e=>{e.dataTransfer.effectAllowed='move';draggingPos=pos;draggingStock=null;div.classList.add('dragging');setTimeout(()=>renderAxles(),0);};
-  div.ondragend=()=>{draggingPos=null;renderAxles();};
-  div.ondragover=e=>{e.preventDefault();div.classList.add('drop-target');};
-  div.ondragleave=()=>div.classList.remove('drop-target');
-  div.ondrop=e=>{e.preventDefault();div.classList.remove('drop-target');dropOnPos(pos);};
-  // touch
+  div.ondragend=()=>{draggingPos=null;stopScroll();renderAxles();};
+  div.ondragover=e=>{e.preventDefault();div.classList.add('drop-target');autoScroll(e.clientY);};
+  div.ondragleave=()=>{div.classList.remove('drop-target');};
+  div.ondrop=e=>{e.preventDefault();div.classList.remove('drop-target');stopScroll();dropOnPos(pos);};
   div.ontouchstart=e=>tireTouchStart(e,pos);
   div.ontouchmove=onTouchMove;
   div.ontouchend=onTouchEnd;
-  // tap (click)
   div.onclick=()=>{
-    if(rotSrc!==null&&rotSrc!==pos){showConfirm('Rotación',`Vas a intercambiar pos ${rotSrc} ↔ pos ${pos}. ¿Confirmar?`,{type:'rotacion',from:rotSrc,to:pos});return;}
+    if(mobStock){addLog('Esa posición ya tiene neumático — elegí una vacía','err');return;}
+    if(rotSrc!==null&&rotSrc!==pos){
+      showConf('Rotación',`Rotar: pos ${rotSrc} ↔ pos ${pos}. ¿Confirmar?`,{type:'rotacion',from:rotSrc,to:pos});return;
+    }
     selPos=pos;
-    const panel=document.getElementById('panel');panel.classList.add('on');
-    document.getElementById('ppos').textContent=`Posición ${pos}`;
-    document.getElementById('pfuego').textContent=t.fuego;
-    document.getElementById('pstats').textContent=`${t.mm}mm · ${t.psi}psi · ${t.estado} · ${t.marca}`;
-    const al=document.getElementById('palert'),alerts=[];
-    if(t.psi<85)alerts.push('⚠ PSI bajo');
-    if(t.mm<4)alerts.push('⚠ Desgaste bajo');
-    al.textContent=alerts.join(' · ');al.style.display=alerts.length?'inline-block':'none';
-    document.getElementById('conf').classList.remove('on');
-    document.getElementById('rhint').classList.remove('on');
+    openPanel(t,pos);
   };
   return div;
 }
 
-// ─── DROP ON POSITION ───
+function openPanel(t,pos){
+  const panel=document.getElementById('panel');panel.classList.add('on');
+  document.getElementById('ppos').textContent=`Posición ${pos}`;
+  document.getElementById('pfuego').textContent=t.fuego;
+  document.getElementById('pstats').textContent=`${t.mm}mm · ${t.psi}psi · ${t.estado} · ${t.marca}`;
+  const al=document.getElementById('palert'),alerts=[];
+  if(t.psi<85)alerts.push('⚠ PSI bajo');
+  if(t.mm<4)alerts.push('⚠ Desgaste bajo');
+  al.textContent=alerts.join(' · ');al.style.display=alerts.length?'inline-block':'none';
+  document.getElementById('conf').classList.remove('on');
+  document.getElementById('rhint').classList.remove('on');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── DROP / MOVE ──
 function dropOnPos(pos){
   if(draggingStock){
-    // stock → empty pos
-    if(tires[pos]){addLog('Esa posición ya tiene neumático','err');draggingStock=null;return;}
-    const nfGen=genNF(CFG[truck].interno,pos);
-    showConfirm('Montaje',`Montar neumático ${draggingStock} en posición ${pos}.\nN° fuego sugerido: ${nfGen}. ¿Confirmar?`,{type:'montaje',pos,tipo:draggingStock,nf:nfGen});
+    if(tires[pos]){addLog('Posición ya tiene neumático','err');draggingStock=null;return;}
+    const nfG=genNF(CFG[truck].interno,pos);
+    showConf('Montaje',`Montar neumático ${draggingStock} en posición ${pos}.\nN° fuego sugerido: ${nfG}. ¿Confirmar?`,{type:'montaje',pos,tipo:draggingStock,nf:nfG});
   } else if(draggingPos!==null&&draggingPos!==pos){
-    // tire → tire (rotación)
     const tf=tires[draggingPos],tt=tires[pos];
-    const desc=tt?`El neumático ${tt.fuego} pasará a posición ${draggingPos}.`:`Posición ${pos} quedará con ${tf.fuego}.`;
-    showConfirm('Rotación / Movimiento',`Mover ${tf.fuego} de posición ${draggingPos} → posición ${pos}. ${desc} ¿Confirmar?`,{type:'rotacion',from:draggingPos,to:pos});
+    showConf('Rotación / Movimiento',`Mover ${tf.fuego} de pos ${draggingPos} → pos ${pos}. ${tt?`El neumático ${tt.fuego} pasará a pos ${draggingPos}.`:''} ¿Confirmar?`,{type:'rotacion',from:draggingPos,to:pos});
   }
   draggingPos=null;draggingStock=null;
 }
 
-// ─── DEST DROP ───
-function destDragOver(e,dest){e.preventDefault();document.getElementById({transito:'destT',reparacion:'destR',baja:'destB'}[dest]).classList.add('drag-over');}
-function destDragLeave(dest){document.getElementById({transito:'destT',reparacion:'destR',baja:'destB'}[dest]).classList.remove('drag-over');}
-function destDrop(e,dest){
-  e.preventDefault();
-  destDragLeave(dest);
+function dOver(e,id){e.preventDefault();document.getElementById(id).classList.add('drag-over');autoScroll(e.clientY);}
+function dLeave(id){document.getElementById(id).classList.remove('drag-over');stopScroll();}
+function dDrop(e,dest){
+  e.preventDefault();stopScroll();
+  ['destT','destR','destB'].forEach(id=>document.getElementById(id).classList.remove('drag-over'));
   if(draggingPos===null){draggingStock=null;return;}
   const t=tires[draggingPos];
   const DL={transito:'tránsito',reparacion:'reparación',baja:'BAJA'};
-  showConfirm(`Mover a ${DL[dest]}`,`Sacar ${t.fuego} de posición ${draggingPos} → ${DL[dest]}. ¿Confirmar?`,{type:'salida',pos:draggingPos,dest});
+  showConf(`Mover a ${DL[dest]}`,`Sacar ${t.fuego} de pos ${draggingPos} → ${DL[dest]}. ¿Confirmar?`,{type:'salida',pos:draggingPos,dest});
   draggingPos=null;
 }
 
-// ─── STOCK DRAG ───
 function stockDragStart(e,tipo){
   if(stock[tipo]<=0)return;
-  e.dataTransfer.effectAllowed='copy';
-  draggingStock=tipo;draggingPos=null;
+  e.dataTransfer.effectAllowed='copy';draggingStock=tipo;draggingPos=null;
 }
 
-// ─── TOUCH DRAG ───
-let touchStartEl=null,touchData=null;
+// ── AUTO SCROLL DURING DRAG ──
+function autoScroll(clientY){
+  stopScroll();
+  const ZONE=80,SPEED=8;
+  const vh=window.innerHeight;
+  if(clientY<ZONE){
+    scrollInterval=setInterval(()=>window.scrollBy(0,-SPEED),16);
+  } else if(clientY>vh-ZONE){
+    scrollInterval=setInterval(()=>window.scrollBy(0,SPEED),16);
+  }
+}
+function stopScroll(){if(scrollInterval){clearInterval(scrollInterval);scrollInterval=null;}}
+
+// ── TOUCH DRAG ──
 function tireTouchStart(e,pos){
   if(!tires[pos])return;
   touchData={type:'tire',pos};
-  touchStartEl=e.currentTarget;
   const t=tires[pos];
-  touchGhost.style.display='flex';
-  touchGhost.innerHTML=`P${pos}<br>${t.fuego.slice(-4)}`;
-  movGhost(e.touches[0]);
-  touchActive=true;
-  e.preventDefault();
+  ghost.style.display='flex';
+  ghost.innerHTML=`P${pos}<br>${t.mm}mm`;
+  moveGhost(e.touches[0]);
+  touchActive=true;e.preventDefault();
 }
 function stockTouchStart(e,tipo){
   if(stock[tipo]<=0)return;
   touchData={type:'stock',tipo};
-  touchStartEl=e.currentTarget;
-  touchGhost.style.display='flex';
-  touchGhost.innerHTML=tipo==='nuevo'?'🟢':'🔵';
-  movGhost(e.touches[0]);
-  touchActive=true;
-  e.preventDefault();
+  ghost.style.display='flex';
+  ghost.innerHTML=tipo==='nuevo'?'🟢<br>Nuevo':'🔵<br>Tránsito';
+  moveGhost(e.touches[0]);
+  touchActive=true;e.preventDefault();
 }
 function onTouchMove(e){
   if(!touchActive)return;
-  movGhost(e.touches[0]);
+  const t=e.touches[0];
+  moveGhost(t);
+  autoScroll(t.clientY);
   e.preventDefault();
-  // highlight drop targets
-  const el=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
-  clearHighlights();
+  clearHL();
+  const el=document.elementFromPoint(t.clientX,t.clientY);
   if(el){
-    const tire=el.closest('.tire');
-    const dest=el.closest('.ditem');
-    if(tire)tire.classList.add('drop-target');
-    if(dest)dest.classList.add('drag-over');
+    const te=el.closest('.tire');const de=el.closest('.ditem');
+    if(te)te.classList.add('drop-target');
+    if(de)de.classList.add('drag-over');
   }
 }
 function onTouchEnd(e){
-  if(!touchActive){return;}
-  touchGhost.style.display='none';
-  touchActive=false;
-  clearHighlights();
-  const touch=e.changedTouches[0];
-  const el=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(!touchActive)return;
+  ghost.style.display='none';touchActive=false;stopScroll();clearHL();
+  const tc=e.changedTouches[0];
+  const el=document.elementFromPoint(tc.clientX,tc.clientY);
   if(!el){touchData=null;return;}
-  const tireEl=el.closest('.tire');
-  const destEl=el.closest('.ditem');
-  if(tireEl&&touchData){
-    const pos=parseInt(tireEl.id.replace('t',''));
+  const te=el.closest('.tire'),de=el.closest('.ditem');
+  if(te&&touchData){
+    const pos=parseInt(te.id.replace('t',''));
     if(!isNaN(pos)){
-      if(touchData.type==='tire'&&touchData.pos!==pos){
-        draggingPos=touchData.pos;dropOnPos(pos);
-      } else if(touchData.type==='stock'){
-        draggingStock=touchData.tipo;dropOnPos(pos);
-      }
+      if(touchData.type==='tire'&&touchData.pos!==pos){draggingPos=touchData.pos;dropOnPos(pos);}
+      else if(touchData.type==='stock'){draggingStock=touchData.tipo;dropOnPos(pos);}
     }
-  } else if(destEl&&touchData&&touchData.type==='tire'){
-    const dest=destEl.dataset.dest;
-    if(dest){
-      draggingPos=touchData.pos;
-      destDrop({preventDefault:()=>{}},dest);
-    }
+  } else if(de&&touchData&&touchData.type==='tire'){
+    const dest=de.dataset.dest;
+    if(dest){draggingPos=touchData.pos;dDrop({preventDefault:()=>{}},dest);}
   }
   touchData=null;
 }
-function movGhost(t){touchGhost.style.left=(t.clientX-32)+'px';touchGhost.style.top=(t.clientY-32)+'px';}
-function clearHighlights(){document.querySelectorAll('.drop-target').forEach(e=>e.classList.remove('drop-target'));document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));}
+function moveGhost(t){ghost.style.left=(t.clientX-32)+'px';ghost.style.top=(t.clientY-32)+'px';}
+function clearHL(){document.querySelectorAll('.drop-target').forEach(e=>e.classList.remove('drop-target'));document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));}
 
-// ─── PANEL ACTIONS ───
+// ── PANEL ACTIONS ──
 function doAct(type){
   if(!selPos)return;
   const t=tires[selPos];
   if(type==='rotar'){
     rotSrc=selPos;
     document.getElementById('rhint').classList.add('on');
-    showHint('Ahora tocá la posición destino para completar la rotación');
+    showHbar('Tocá la posición destino para completar la rotación');
     renderAxles();return;
   }
   const L={psi:'Regulación PSI',retorqueo:'Retorqueo',reparacion:'Reparación'};
-  showConfirm(L[type],`Registrar ${L[type].toLowerCase()} al neumático ${t.fuego} (pos ${selPos}, ${t.mm}mm · ${t.psi}psi). ¿Confirmar?`,{type,pos:selPos});
+  showConf(L[type],`Registrar ${L[type].toLowerCase()} al neumático ${t.fuego} (pos ${selPos}, ${t.mm}mm · ${t.psi}psi). ¿Confirmar?`,{type,pos:selPos});
 }
 
-// ─── CONFIRM ───
-function showConfirm(title,desc,action){
+// ── MOBILE TRAY ──
+function switchMobTab(tab){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('mtab-'+tab).classList.add('on');
+  document.getElementById('mobEntrada').style.display=tab==='entrada'?'flex':'none';
+  document.getElementById('mobSalida').style.display=tab==='salida'?'flex':'none';
+}
+function mobSelStock(tipo){
+  if(stock[tipo]<=0)return;
+  mobStock=tipo;selPos=null;
+  document.getElementById('panel').classList.remove('on');
+  document.getElementById('mbN').classList.toggle('sel',tipo==='nuevo');
+  document.getElementById('mbT').classList.toggle('sel',tipo==='transito');
+  showHbar(`Tocá la posición vacía para montar neumático ${tipo}`);
+  renderAxles();
+}
+function doMobMontaje(pos){
+  if(!mobStock)return;
+  const nfG=genNF(CFG[truck].interno,pos);
+  showConf('Montaje',`Montar neumático ${mobStock} en posición ${pos}.\nN° fuego sugerido: ${nfG}. ¿Confirmar?`,{type:'montaje',pos,tipo:mobStock,nf:nfG});
+}
+function mobDest(dest){
+  if(!selPos){addLog('Primero tocá el neumático que querés sacar','err');return;}
+  const t=tires[selPos];
+  const DL={transito:'tránsito',reparacion:'reparación',baja:'BAJA'};
+  showConf(`Mover a ${DL[dest]}`,`Sacar ${t.fuego} de pos ${selPos} → ${DL[dest]}. ¿Confirmar?`,{type:'salida',pos:selPos,dest});
+}
+function clearMobSel(){
+  mobStock=null;
+  if(document.getElementById('mbN'))document.getElementById('mbN').classList.remove('sel');
+  if(document.getElementById('mbT'))document.getElementById('mbT').classList.remove('sel');
+}
+
+// ── CONFIRM ──
+function showConf(title,desc,action){
   pending=action;
   document.getElementById('cttl').textContent=title;
   document.getElementById('cdesc').textContent=desc;
@@ -452,13 +539,15 @@ function doOk(){
     if(tires[a.from])tires[a.from].pos=a.from;
     if(tires[a.to])tires[a.to].pos=a.to;
     addLog(`✓ Rotación: pos ${a.from} ↔ pos ${a.to}`,'ok');
-    rotSrc=null;document.getElementById('rhint').classList.remove('on');hideHint();
+    rotSrc=null;document.getElementById('rhint').classList.remove('on');hideHbar();
   } else if(a.type==='salida'){
     addLog(`✓ ${a.dest==='baja'?'Baja':'Salida'}: ${tires[a.pos].fuego} → ${a.dest}`,'ok');
     delete tires[a.pos];selPos=null;document.getElementById('panel').classList.remove('on');
   } else if(a.type==='montaje'){
     tires[a.pos]={pos:a.pos,fuego:a.nf,mm:13,psi:100,estado:a.tipo,marca:'—'};
-    stock[a.tipo]--;addLog(`✓ Montaje: ${a.nf} en pos ${a.pos} (${a.tipo})`,'ok');
+    stock[a.tipo]--;
+    addLog(`✓ Montaje: ${a.nf} en pos ${a.pos} (${a.tipo})`,'ok');
+    clearMobSel();hideHbar();
   } else if(a.type==='psi')addLog(`✓ Regulación PSI — pos ${a.pos}`,'ok');
   else if(a.type==='retorqueo')addLog(`✓ Retorqueo — pos ${a.pos}`,'ok');
   else if(a.type==='reparacion')addLog(`✓ Reparación — pos ${a.pos}`,'ok');
@@ -468,34 +557,48 @@ function doOk(){
 }
 function doNo(){
   pending=null;rotSrc=null;draggingPos=null;draggingStock=null;touchData=null;
+  clearMobSel();
   document.getElementById('conf').classList.remove('on');
   document.getElementById('rhint').classList.remove('on');
-  hideHint();renderAxles();
+  hideHbar();renderAxles();
 }
 
-// ─── SIDEBAR ───
+// ── SIDEBAR UPDATE ──
 function updSB(){
   document.getElementById('cN').textContent=stock.nuevo;
   document.getElementById('cT').textContent=stock.transito;
   document.getElementById('sbN').classList.toggle('blk',stock.nuevo<=0);
   document.getElementById('sbT').classList.toggle('blk',stock.transito<=0);
+  if(document.getElementById('mbcN'))document.getElementById('mbcN').textContent=stock.nuevo;
+  if(document.getElementById('mbcT'))document.getElementById('mbcT').textContent=stock.transito;
+  if(document.getElementById('mbN'))document.getElementById('mbN').classList.toggle('blk',stock.nuevo<=0);
+  if(document.getElementById('mbT'))document.getElementById('mbT').classList.toggle('blk',stock.transito<=0);
 }
 
-// ─── HINT BAR ───
-function showHint(msg){const b=document.getElementById('hintBar');b.textContent=msg;b.classList.add('on');}
-function hideHint(){document.getElementById('hintBar').classList.remove('on');}
+// ── HINT BAR ──
+function showHbar(msg){const b=document.getElementById('hbar');b.textContent=msg;b.classList.add('on');}
+function hideHbar(){document.getElementById('hbar').classList.remove('on');}
 
-// ─── LOG ───
+// ── LOG ──
 function addLog(msg,type=''){
   const log=document.getElementById('logw');
   const d=document.createElement('div');d.className=`li ${type}`;
   const h=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
   d.textContent=`${h} — ${msg}`;
   log.insertBefore(d,log.firstChild);
-  while(log.children.length>6)log.removeChild(log.lastChild);
+  while(log.children.length>5)log.removeChild(log.lastChild);
 }
 
+// ── MOBILE TRAY VISIBILITY ──
+function checkMob(){
+  const tray=document.getElementById('mobTray');
+  tray.style.display=window.innerWidth<=640?'flex':'none';
+}
+window.addEventListener('resize',checkMob);
+
+// ── INIT ──
 loadTruck('JFTH64',document.getElementById('btn-JFTH64'));
+checkMob();
 </script>
 </body>
 </html>
